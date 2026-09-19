@@ -35,4 +35,19 @@ public class TasksController(NagsterContext db) : ControllerBase
         await db.SaveChangesAsync();
         return CreatedAtAction(nameof(GetOne), new { id = task.Id }, task);
     }
+
+    // PUT /api/tasks/5 – används för snooze och för att markera klart
+    [HttpPut("{id}")]
+    public async Task<ActionResult<NagTask>> Update(int id, NagTask updated)
+    {
+        var task = await db.Tasks.FindAsync(id);
+        if (task is null) return NotFound();
+
+        task.Title = updated.Title;
+        task.Status = updated.Status;
+        task.SnoozeCount = updated.SnoozeCount;
+        task.DurationMinutes = updated.DurationMinutes;
+        await db.SaveChangesAsync();
+        return task;
+    }
 }
