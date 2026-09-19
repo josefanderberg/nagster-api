@@ -23,6 +23,9 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// Serverar uppladdade filer från wwwroot, t.ex. /uploads/xyz.webm
+app.UseStaticFiles();
+
 app.MapControllers();
 
 app.Run();
