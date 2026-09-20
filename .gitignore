@@ -485,3 +485,7 @@ $RECYCLE.BIN/
 *.db
 *.db-shm
 *.db-wal
+
+# Uppladdade filer skapas av anvandarna
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
