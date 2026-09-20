@@ -34,8 +34,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
-// Serverar uppladdade filer från wwwroot, t.ex. /uploads/xyz.webm
-app.UseStaticFiles();
+// Serverar uppladdade filer från wwwroot, t.ex. /uploads/xyz.webm.
+// nosniff säger åt webbläsaren att lita på vår Content-Type i stället för att
+// gissa utifrån innehållet – annars kan en uppladdad fil tolkas som något annat.
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = context => context.Context.Response.Headers.XContentTypeOptions = "nosniff",
+});
 
 app.MapControllers();
 
