@@ -10,6 +10,15 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<NagsterContext>(options =>
     options.UseSqlite("Data Source=nagster.db"));
 
+// CORS: webbappen kör på en annan port och måste få anropa API:et.
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 var app = builder.Build();
 
 // Skapa databasen vid första starten – ingen manuell setup behövs.
@@ -22,6 +31,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseCors();
 
 // Serverar uppladdade filer från wwwroot, t.ex. /uploads/xyz.webm
 app.UseStaticFiles();
