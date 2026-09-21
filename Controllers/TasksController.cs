@@ -65,7 +65,7 @@ public class TasksController(NagsterContext db, IWebHostEnvironment env) : Contr
         task.Title = updated.Title;
         task.Status = updated.Status;
         task.SnoozeCount = updated.SnoozeCount;
-        task.DurationMinutes = updated.DurationMinutes;
+        task.DurationSeconds = updated.DurationSeconds;
         await db.SaveChangesAsync();
         return task;
     }

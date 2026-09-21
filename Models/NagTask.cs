@@ -15,7 +15,7 @@ public class NagTask
 
     public int SnoozeCount { get; set; } = 0;
 
-    public int DurationMinutes { get; set; } = 25;
+    public int DurationSeconds { get; set; } = 1500;
 
     // Sökväg till uppladdad fil (ljud eller bild), t.ex. /uploads/abc123.webm
     public string? FilePath { get; set; }
