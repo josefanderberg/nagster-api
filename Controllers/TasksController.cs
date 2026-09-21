@@ -28,7 +28,7 @@ public class TasksController(NagsterContext db, IWebHostEnvironment env) : Contr
         [".jpeg"] = [[0xFF, 0xD8, 0xFF]],
     };
 
-    // GET /api/tasks – nyaste först
+    // GET /api/tasks - nyaste först
     [HttpGet]
     public async Task<IEnumerable<NagTask>> GetAll()
     {
@@ -55,7 +55,7 @@ public class TasksController(NagsterContext db, IWebHostEnvironment env) : Contr
         return CreatedAtAction(nameof(GetOne), new { id = task.Id }, task);
     }
 
-    // PUT /api/tasks/5 – används för snooze och för att markera klart
+    // PUT /api/tasks/5 - används för snooze och för att markera klart
     [HttpPut("{id}")]
     public async Task<ActionResult<NagTask>> Update(int id, NagTask updated)
     {
@@ -70,7 +70,7 @@ public class TasksController(NagsterContext db, IWebHostEnvironment env) : Contr
         return task;
     }
 
-    // POST /api/tasks/5/file – multipart/form-data med fältnamnet "file"
+    // POST /api/tasks/5/file - multipart/form-data med fältnamnet "file"
     [HttpPost("{id}/file")]
     [RequestSizeLimit(MaxFileBytes)]
     public async Task<ActionResult<NagTask>> UploadFile(int id, IFormFile file)
@@ -106,7 +106,7 @@ public class TasksController(NagsterContext db, IWebHostEnvironment env) : Contr
             await file.CopyToAsync(target);
         }
 
-        // Bara sökvägen sparas i databasen – filen ligger på disk
+        // Bara sökvägen sparas i databasen - filen ligger på disk
         task.FilePath = $"/uploads/{fileName}";
         await db.SaveChangesAsync();
         return task;

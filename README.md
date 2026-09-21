@@ -1,4 +1,4 @@
-# Tjat – API
+# Tjat - API
 
 REST-API i ASP.NET WebAPI med SQLite. Används av [webbappen](https://github.com/josefanderberg/nagster-web).
 
@@ -27,6 +27,6 @@ API:et startar på `http://localhost:5080`. Databasen (`nagster.db`) skapas auto
 
 ## Tekniska val
 
-- **SQLite + EF Core** – databasen är en fil som skapas automatiskt, ingen installation behövs
+- **SQLite + EF Core** - databasen är en fil som skapas automatiskt, ingen installation behövs
 - **CORS** öppnat för webbappens adress (`http://localhost:5173`)
-- **Säker uppladdning** – vitlista på filtyper, kontroll av filens innehåll och storleksgräns på 10 MB
+- **Säker uppladdning** - vitlista på filtyper, kontroll av filens innehåll och storleksgräns på 10 MB
