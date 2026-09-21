@@ -17,7 +17,7 @@ public class NagTask
 
     public int DurationSeconds { get; set; } = 1500;
 
-    // Sökväg till uppladdad fil (ljud eller bild), t.ex. /uploads/abc123.webm
+    // Sökväg till den inspelade ljudfilen, t.ex. /uploads/abc123.webm
     public string? FilePath { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

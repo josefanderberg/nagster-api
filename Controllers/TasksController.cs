@@ -12,21 +12,9 @@ public class TasksController(NagsterContext db, IWebHostEnvironment env) : Contr
 {
     private const long MaxFileBytes = 10 * 1024 * 1024; // 10 MB
 
-    // Vitlista: bara det appen faktiskt använder. Ljud för tjatet, bild som komplement.
-    private static readonly string[] AllowedAudio = [".webm", ".m4a", ".mp3", ".wav"];
-    private static readonly string[] AllowedImages = [".png", ".jpg", ".jpeg"];
-
-    // Filers första bytes ("magic bytes"). Filändelsen går att ljuga om,
-    // men innehållet börjar alltid med den här stämpeln.
-    private static readonly Dictionary<string, byte[][]> Signatures = new()
-    {
-        [".webm"] = [[0x1A, 0x45, 0xDF, 0xA3]],
-        [".mp3"] = [[0x49, 0x44, 0x33], [0xFF, 0xFB], [0xFF, 0xF3], [0xFF, 0xF2]],
-        [".wav"] = [[0x52, 0x49, 0x46, 0x46]],
-        [".png"] = [[0x89, 0x50, 0x4E, 0x47]],
-        [".jpg"] = [[0xFF, 0xD8, 0xFF]],
-        [".jpeg"] = [[0xFF, 0xD8, 0xFF]],
-    };
+    // Vitlista: bara de ljudformat apparna faktiskt spelar in i.
+    // webm: Chrome och Edge, ogg: Firefox, m4a: Safari och mobilappen.
+    private static readonly string[] AllowedExtensions = [".webm", ".ogg", ".m4a"];
 
     // GET /api/tasks - nyaste först
     [HttpGet]
@@ -82,18 +70,13 @@ public class TasksController(NagsterContext db, IWebHostEnvironment env) : Contr
         if (file.Length > MaxFileBytes) return BadRequest("Filen är för stor (max 10 MB).");
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        var isAudio = AllowedAudio.Contains(extension);
-        var isImage = AllowedImages.Contains(extension);
-        if (!isAudio && !isImage) return BadRequest("Endast ljud- och bildfiler tillåts.");
+        if (!AllowedExtensions.Contains(extension)) return BadRequest("Endast ljudfiler tillåts.");
 
-        // Tre kontroller som måste vara överens: ändelse, angiven typ och innehåll
-        var declaredType = file.ContentType ?? "";
-        var expectedPrefix = isAudio ? "audio/" : "image/";
-        if (!declaredType.StartsWith(expectedPrefix, StringComparison.OrdinalIgnoreCase))
-            return BadRequest("Filtypen stämmer inte med filändelsen.");
-
-        if (!await HasExpectedSignatureAsync(file, extension))
-            return BadRequest("Filens innehåll stämmer inte med filändelsen.");
+        // Ändelsen och den angivna typen kommer från klienten och går att fejka.
+        // Filens innehåll går inte att ljuga om, så det kontrolleras också.
+        if (!file.ContentType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase)
+            || !await IsAudioFileAsync(file, extension))
+            return BadRequest("Filen är inte en giltig ljudfil.");
 
         var uploadsDir = Path.Combine(env.ContentRootPath, "wwwroot", "uploads");
         Directory.CreateDirectory(uploadsDir);
@@ -112,19 +95,21 @@ public class TasksController(NagsterContext db, IWebHostEnvironment env) : Contr
         return task;
     }
 
-    // Läser filens början och jämför med den stämpel filändelsen utlovar
-    private static async Task<bool> HasExpectedSignatureAsync(IFormFile file, string extension)
+    // Varje filformat börjar med en egen stämpel, så kallade "magic bytes".
+    // Här läses filens första bytes och jämförs med stämpeln ändelsen utlovar.
+    private static async Task<bool> IsAudioFileAsync(IFormFile file, string extension)
     {
-        var header = new byte[12];
+        var header = new byte[8];
         await using var stream = file.OpenReadStream();
         var read = await stream.ReadAtLeastAsync(header, header.Length, throwOnEndOfStream: false);
+        if (read < header.Length) return false;
 
-        // m4a har sin stämpel ("ftyp") en bit in i filen
-        if (extension == ".m4a")
-            return read >= 8 && Encoding.ASCII.GetString(header, 4, 4) == "ftyp";
-
-        return Signatures.TryGetValue(extension, out var candidates)
-            && candidates.Any(signature =>
-                read >= signature.Length && header.Take(signature.Length).SequenceEqual(signature));
+        return extension switch
+        {
+            ".webm" => header[0] == 0x1A && header[1] == 0x45 && header[2] == 0xDF && header[3] == 0xA3,
+            ".ogg" => Encoding.ASCII.GetString(header, 0, 4) == "OggS",
+            ".m4a" => Encoding.ASCII.GetString(header, 4, 4) == "ftyp", // stämpeln ligger en bit in
+            _ => false,
+        };
     }
 }

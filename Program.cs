@@ -34,9 +34,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 
-// Serverar uppladdade filer från wwwroot, t.ex. /uploads/xyz.webm.
-// nosniff säger åt webbläsaren att lita på vår Content-Type i stället för att
-// gissa utifrån innehållet - annars kan en uppladdad fil tolkas som något annat.
+// Serverar de inspelade ljudfilerna från wwwroot, t.ex. /uploads/abc123.webm.
+// nosniff: webbläsaren ska lita på filtypen servern anger och inte själv gissa
+// utifrån innehållet. Annars kan en fil som liknar en webbsida köras som en.
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = context => context.Context.Response.Headers.XContentTypeOptions = "nosniff",

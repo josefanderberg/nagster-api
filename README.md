@@ -23,10 +23,10 @@ API:et startar på `http://localhost:5080`. Databasen (`nagster.db`) skapas auto
 | GET | `/api/tasks` | Lista uppgifter |
 | POST | `/api/tasks` | Skapa uppgift |
 | PUT | `/api/tasks/{id}` | Uppdatera uppgift |
-| POST | `/api/tasks/{id}/file` | Ladda upp fil till en uppgift (`multipart/form-data`) |
+| POST | `/api/tasks/{id}/file` | Ladda upp en ljudfil till en uppgift (`multipart/form-data`) |
 
 ## Tekniska val
 
 - **SQLite + EF Core** - databasen är en fil som skapas automatiskt, ingen installation behövs
 - **CORS** öppnat för webbappens adress (`http://localhost:5173`)
-- **Säker uppladdning** - vitlista på filtyper, kontroll av filens innehåll och storleksgräns på 10 MB
+- **Säker uppladdning** - bara ljudfiler, kontroll av filens innehåll och storleksgräns på 10 MB
